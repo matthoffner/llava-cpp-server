@@ -21,59 +21,109 @@ using namespace httplib;
 
 const char *html = R"(
 <html>
-    <head>
-        <title>LLaVA demo</title>
-    </head>
-    <body>
-        <div>
-            <h1>LLaVA Demo</h1>
-        </div>
-        <form id="formElem">
-            <div><span>System Prompt: </span><input type="text" name="system_prompt" accept="text/*" value="A chat between a curious human and an artificial intelligence assistant.  The assistant gives helpful, detailed, and polite answers to the human's questions."></div>
-            <div><span>Prompt: </span><input type="text" name="user_prompt" accept="text/*"></div>
-            <div><input type="file" name="image_file" id="imageField" accept="image/*"></div>
-            <div><input type="submit"></div>
-        </form>
-        <div><span><b>Response: </b></span></div>
-        <div id="imageView"></div>
-        <div><span id="responseElem"></span></div>
-    </body>
+<head>
+    <title>LLaVA demo</title>
+    <style>
+        @media (prefers-color-scheme: dark) {
+            body {
+                background-color: #121212;
+                color: #ddd;
+            }
+
+            input[type="text"], input[type="file"], input[type="submit"] {
+                background-color: #333;
+                color: #ddd;
+                border: 2px solid #444;
+            }
+
+            input[type="submit"]:hover {
+                background-color: #555;
+            }
+        }
+
+        body {
+            font-family: 'Courier New', Courier, monospace;
+            margin: 20px;
+        }
+
+        h1 {
+            text-align: center;
+        }
+
+        div {
+            margin-bottom: 10px;
+        }
+
+        span {
+            display: inline-block;
+            min-width: 150px;
+        }
+
+        input[type="text"], input[type="file"] {
+            width: 100%;
+            padding: 5px;
+            box-sizing: border-box;
+            border: 2px solid black;
+        }
+
+        input[type="submit"] {
+            padding: 10px 15px;
+            border: 2px solid black;
+            cursor: pointer;
+            text-transform: uppercase;
+        }
+
+        img {
+            max-width: 100%;
+            height: auto;
+            border: 2px solid black;
+        }
+    </style>
+</head>
+
+<body>
+    <div>
+        <h1>LLaVA Demo</h1>
+    </div>
+    <form id="formElem">
+        <div><span>System Prompt: </span><input type="text" name="system_prompt" value="A chat between a curious human and an artificial intelligence assistant.  The assistant gives helpful, detailed, and polite answers to the human's questions."></div>
+        <div><span>Prompt: </span><input type="text" name="user_prompt"></div>
+        <div><input type="file" name="image_file" id="imageField" accept="image/*"></div>
+        <div><input type="submit" value="Submit"></div>
+    </form>
+    <div><span><b>Response: </b></span></div>
+    <div id="imageView"></div>
+    <div><span id="responseElem"></span></div>
     <script>
         document.getElementById("imageField").addEventListener("change", handleFileSelect, false);
-        function handleFileSelect(evt)
-        {
-            var files = evt.target.files; 
-            var f = files[0]; 
+
+        function handleFileSelect(evt) {
+            var files = evt.target.files;
+            var f = files[0];
             var reader = new FileReader();
             reader.onload = (
-                function(theFile)
-                { 
-                    return function(e) { 
+                function(theFile) {
+                    return function(e) {
                         document.getElementById("imageView").innerHTML = [
-                            '<img src="', e.target.result,'" title="', theFile.name, '" width="500" />'
-                        ].join(""); 
-                    }; 
+                            '<img src="', e.target.result, '" title="', theFile.name, '" width="500" />'
+                        ].join("");
+                    };
                 }
             )(f);
-	        reader.readAsDataURL(f); 
+            reader.readAsDataURL(f);
         }
-        formElem.onsubmit = async (e) =>
-        {
+        formElem.onsubmit = async (e) => {
             let responseField = document.getElementById("responseElem");
             responseField.textContent = "";
             e.preventDefault();
-            let res = await fetch('/llava',
-            {
+            let res = await fetch('/llava', {
                 method: 'POST',
                 body: new FormData(formElem)
             });
             let data = await res.json();
-            if (data.error)
-            {
+            if (data.error) {
                 responseField.textContent = "error: " + data.description;
-            }
-            else
-            {
+            } else {
                 responseField.textContent = data.content;
             }
         };
