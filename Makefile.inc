@@ -5,22 +5,6 @@
 # Build rules. Included by Makefile, do not use directly.
 #
 
-# CUDA Configuration
-ifdef LLAMA_CUBLAS
-	MK_CPPFLAGS += -DGGML_USE_CUBLAS -I/usr/local/cuda/include -I/opt/cuda/include -I$(CUDA_PATH)/targets/x86_64-linux/include
-	MK_LDFLAGS  += -lcublas -lculibos -lcudart -lcublasLt -lpthread -ldl -lrt -L/usr/local/cuda/lib64 -L/opt/cuda/lib64 -L$(CUDA_PATH)/targets/x86_64-linux/lib
-	OBJS        += ggml-cuda.o
-	NVCCFLAGS   = --forward-unknown-to-host-compiler -use_fast_math
-ifdef LLAMA_CUDA_NVCC
-	NVCC = $(LLAMA_CUDA_NVCC)
-else
-	NVCC = nvcc
-endif
-endif
-
-# Rule to compile CUDA source
-%.o: %.cu
-	$(NVCC) $(NVCCFLAGS) -c $< -o $@ $(MK_CPPFLAGS)
 
 ###############################################################################
 # llama.cpp
@@ -75,7 +59,7 @@ obj/web_server.o: web_server.cpp web_server.hpp llava_request.hpp cpp-httplib/ht
 # Output binary
 # 
 bin/llava-server: obj/llava_server.o obj/web_server.o llama.cpp/ggml.o llama.cpp/llama.o obj/clip.o $(LLAMA_DEPS) $(LLAMA_OBJS)
-	$(CXX) -Illama.cpp -Illama.cpp/common $(CXXFLAGS) $(MK_LDFLAGS) -o $@ $(LDFLAGS) -Wno-cast-qual $(HTTP_ZLIB_SUPPORT) $(filter-out %.h,$^)
+	$(CXX) -Illama.cpp -Illama.cpp/common $(CXXFLAGS) -o $@ $(LDFLAGS) -Wno-cast-qual $(HTTP_ZLIB_SUPPORT) $(filter-out %.h,$^)
 
 #
 # Build llama.cpp
