@@ -95,7 +95,7 @@ endif # LLAMA_METAL
 #
 # Build all
 #
-build-all:  obj bin llama-base bin/ggml-metal.metal bin/ggml-cuda.cu bin/llava-server
+build-all:  obj bin llama-base bin/ggml-metal.metal bin/llava-server
 	@echo $(LLAMA_OBJS)
 
 #
