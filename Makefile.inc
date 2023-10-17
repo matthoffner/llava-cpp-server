@@ -12,6 +12,10 @@
 
 include llama.cpp/Makefile
 
+ifdef LLAMA_CUBLAS
+	LLAMA_OBJS += llama.cpp/ggml-cuda.o
+endif
+
 # Take llama files and prepend llama.cpp/ to them
 LLAMA_OBJS = $(foreach file,$(OBJS),llama.cpp/$(file))
 LLAMA_DEPS = $(foreach file,$(COMMON_DEPS),llama.cpp/$(file))
@@ -60,7 +64,7 @@ obj/web_server.o: web_server.cpp web_server.hpp llava_request.hpp cpp-httplib/ht
 # 
 bin/llava-server: obj/llava_server.o obj/web_server.o llama.cpp/ggml.o llama.cpp/llama.o obj/clip.o $(LLAMA_DEPS) $(LLAMA_OBJS)
 	$(CXX) -Illama.cpp -Illama.cpp/common $(CXXFLAGS) -o $@ $(LDFLAGS) -Wno-cast-qual $(HTTP_ZLIB_SUPPORT) $(filter-out %.h,$^)
-
+#
 #
 # Build llama.cpp
 #
