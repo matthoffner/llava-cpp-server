@@ -4,6 +4,24 @@
 #
 # Build rules. Included by Makefile, do not use directly.
 #
+PLATFORM := $(shell uname)
+
+ifeq ($(PLATFORM), Linux)
+    # Add CUDA-specific paths and flags
+    CUDA_PATH = /usr/local/cuda
+    CUDA_INC_PATH = $(CUDA_PATH)/include
+    CUDA_LIB_PATH = $(CUDA_PATH)/lib64
+    CUDA_CXXFLAGS = -I$(CUDA_INC_PATH)
+    CUDA_LDFLAGS = -L$(CUDA_LIB_PATH) -lcuda -lcudart -lcublas
+
+    # Optionally change the compiler to nvcc for CUDA support
+    #CXX = $(CUDA_PATH)/bin/nvcc
+
+    # Update the existing flags
+    HTTP_CXXFLAGS += $(CUDA_CXXFLAGS)
+    CXXFLAGS += $(CUDA_CXXFLAGS)
+    LDFLAGS += $(CUDA_LDFLAGS)
+endif
 
 
 ###############################################################################
