@@ -14,8 +14,7 @@ ifeq ($(PLATFORM), Linux)
     CUDA_CXXFLAGS = -I$(CUDA_INC_PATH)
     CUDA_LDFLAGS = -L$(CUDA_LIB_PATH) -lcuda -lcudart -lcublas
 
-    # Optionally change the compiler to nvcc for CUDA support
-    #CXX = $(CUDA_PATH)/bin/nvcc
+    CXX = $(CUDA_PATH)/bin/nvcc
 
     # Update the existing flags
     HTTP_CXXFLAGS += $(CUDA_CXXFLAGS)
@@ -77,7 +76,7 @@ obj/web_server.o: web_server.cpp web_server.hpp llava_request.hpp cpp-httplib/ht
 # Output binary
 # 
 bin/llava-server: obj/llava_server.o obj/web_server.o llama.cpp/ggml.o llama.cpp/llama.o obj/clip.o $(LLAMA_DEPS) $(LLAMA_OBJS)
-	$(CXX) -Illama.cpp -Illama.cpp/common $(CXXFLAGS) -o $@ $(LDFLAGS) -Wno-cast-qual $(HTTP_ZLIB_SUPPORT) $(filter-out %.h,$^)
+    $(CXX) -Illama.cpp -Illama.cpp/common $(CXXFLAGS) -o $@ $(LDFLAGS) -Wno-cast-qual -lcublas $(HTTP_ZLIB_SUPPORT) $(filter-out %.h,$^)
 
 #
 # Build llama.cpp
@@ -97,11 +96,15 @@ else
 bin/ggml-metal.metal: ;
 endif # LLAMA_METAL
 
+# Copy the .cuda file to the bin/ directory
+bin/ggml-cuda.cu: llama.cpp/ggml-cuda.cu
+    cp $< $@
+
 #
 # Build all
 #
-build-all:  obj bin llama-base bin/ggml-metal.metal bin/llava-server
-	@echo $(LLAMA_OBJS)
+build-all:  obj bin llama-base bin/ggml-metal.metal bin/ggml-cuda.cu bin/llava-server
+    @echo $(LLAMA_OBJS)
 
 #
 # Clean all
