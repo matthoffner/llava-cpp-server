@@ -76,7 +76,7 @@ obj/web_server.o: web_server.cpp web_server.hpp llava_request.hpp cpp-httplib/ht
 # Output binary
 # 
 bin/llava-server: obj/llava_server.o obj/web_server.o llama.cpp/ggml.o llama.cpp/llama.o obj/clip.o $(LLAMA_DEPS) $(LLAMA_OBJS)
-    $(CXX) -Illama.cpp -Illama.cpp/common $(CXXFLAGS) -o $@ $(LDFLAGS) -Wno-cast-qual -lcublas $(HTTP_ZLIB_SUPPORT) $(filter-out %.h,$^)
+        $(CXX) -Illama.cpp -Illama.cpp/common $(CXXFLAGS) -o $@ $(LDFLAGS) -Wno-cast-qual -lcublas $(HTTP_ZLIB_SUPPORT) $(filter-out %.h,$^)
 
 #
 # Build llama.cpp
@@ -98,7 +98,7 @@ endif # LLAMA_METAL
 
 # Copy the .cuda file to the bin/ directory
 bin/ggml-cuda.cu: llama.cpp/ggml-cuda.cu
-    cp $< $@
+        cp $< $@
 
 #
 # Build all
