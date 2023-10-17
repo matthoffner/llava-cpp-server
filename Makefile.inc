@@ -13,7 +13,7 @@ ifeq ($(LLAMA_CUBLAS),1)
 	CUDA_LDFLAGS = -L$(CUDA_LIB_PATH) -lcuda -lcudart -lcublas
 
 	CXX = $(CUDA_PATH)/bin/nvcc
-	NVCC_COMPILER_FLAGS = -Xcompiler
+	NVCC_COMPILER_FLAGS = -Xcompiler -fPIC
 	
 	# Update the existing flags
 	HTTP_CXXFLAGS += $(CUDA_CXXFLAGS)
