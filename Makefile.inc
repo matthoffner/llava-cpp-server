@@ -14,12 +14,13 @@ ifeq ($(PLATFORM), Linux)
 	CUDA_LDFLAGS = -L$(CUDA_LIB_PATH) -lcuda -lcudart -lcublas
 
 	CXX = $(CUDA_PATH)/bin/nvcc
+	NVCC_COMPILER_FLAGS = -Xcompiler "-fPIC"
+	
 	# Update the existing flags
 	HTTP_CXXFLAGS += $(CUDA_CXXFLAGS)
 	CXXFLAGS += $(CUDA_CXXFLAGS)
 	LDFLAGS += $(CUDA_LDFLAGS)
 endif
-
 
 ###############################################################################
 # llama.cpp
@@ -31,14 +32,12 @@ include llama.cpp/Makefile
 LLAMA_OBJS = $(foreach file,$(OBJS),llama.cpp/$(file))
 LLAMA_DEPS = $(foreach file,$(COMMON_DEPS),llama.cpp/$(file))
 
-
 ###############################################################################
 # cpp-httplib
 ###############################################################################
 
 HTTP_CXXFLAGS = -O2 -std=c++17 -I.. -Wall -Wextra -pthread
 HTTP_ZLIB_SUPPORT = -DCPPHTTPLIB_ZLIB_SUPPORT -lz
-
 
 ###############################################################################
 # llava-server rules
@@ -59,13 +58,13 @@ obj:
 # LLaVa dependencies in llama.cpp/examples/llava/ (e.g., clip.cpp)
 #
 obj/%.o:	llama.cpp/examples/llava/%.cpp
-	$(CXX) -Illama.cpp -Illama.cpp/common -c -o $@ $< $(CXXFLAGS) -I. -std=c++17
+	$(CXX) -Illama.cpp -Illama.cpp/common -c -o $@ $< $(CXXFLAGS) $(NVCC_COMPILER_FLAGS) -I. -std=c++17
 
 #
 # Our modules
 #
 obj/llava_server.o:	llava_server.cpp llava_request.hpp llama.cpp/examples/llava/llava-utils.h llama.cpp/examples/llava/clip.h llama.cpp/common/stb_image.h
-	$(CXX) -Illama.cpp -Illama.cpp/common -c -o $@ $< $(CXXFLAGS) -I. -std=c++17
+	$(CXX) -Illama.cpp -Illama.cpp/common -c -o $@ $< $(CXXFLAGS) $(NVCC_COMPILER_FLAGS) -I. -std=c++17
 
 obj/web_server.o: web_server.cpp web_server.hpp llava_request.hpp cpp-httplib/httplib.h
 	$(CXX) -c -o $@ $< $(HTTP_CXXFLAGS) -I.
@@ -74,7 +73,7 @@ obj/web_server.o: web_server.cpp web_server.hpp llava_request.hpp cpp-httplib/ht
 # Output binary
 # 
 bin/llava-server: obj/llava_server.o obj/web_server.o llama.cpp/ggml.o llama.cpp/llama.o obj/clip.o $(LLAMA_DEPS) $(LLAMA_OBJS)
-	$(CXX) -Illama.cpp -Illama.cpp/common $(CXXFLAGS) -o $@ $(LDFLAGS) -Wno-cast-qual -lcublas $(HTTP_ZLIB_SUPPORT) $(filter-out %.h,$^)
+	$(CXX) -Illama.cpp -Illama.cpp/common $(CXXFLAGS) $(NVCC_COMPILER_FLAGS) -o $@ $(LDFLAGS) -Wno-cast-qual -lcublas $(HTTP_ZLIB_SUPPORT) $(filter-out %.h,$^)
 
 #
 # Build llama.cpp
