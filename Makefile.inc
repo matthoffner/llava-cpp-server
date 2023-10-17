@@ -4,9 +4,8 @@
 #
 # Build rules. Included by Makefile, do not use directly.
 #
-PLATFORM := $(shell uname)
 
-ifeq ($(PLATFORM), Linux)
+ifeq ($(LLAMA_CUBLAS),1)
 	CUDA_PATH = /usr/local/cuda
 	CUDA_INC_PATH = $(CUDA_PATH)/include
 	CUDA_LIB_PATH = $(CUDA_PATH)/lib64
@@ -92,10 +91,6 @@ bin/ggml-metal.metal: llama.cpp/ggml-metal.metal
 else
 bin/ggml-metal.metal: ;
 endif # LLAMA_METAL
-
-# Copy the .cuda file to the bin/ directory
-bin/ggml-cuda.cu: llama.cpp/ggml-cuda.cu
-	cp $< $@
 
 #
 # Build all
