@@ -17,6 +17,7 @@ LLAMA_DEPS = $(foreach file,$(COMMON_DEPS),llama.cpp/$(file))
 
 ifdef LLAMA_CUBLAS
 	LLAMA_OBJS += llama.cpp/ggml-cuda.o
+	LIBS += -lcuda -lcublas
 endif
 
 ###############################################################################
@@ -52,7 +53,7 @@ obj/web_server.o: web_server.cpp web_server.hpp llava_request.hpp cpp-httplib/ht
 	$(CXX) -c -o $@ $< $(HTTP_CXXFLAGS) -I.
 
 bin/llava-server: obj/llava_server.o obj/web_server.o llama.cpp/ggml.o llama.cpp/llama.o obj/clip.o $(LLAMA_DEPS) $(LLAMA_OBJS)
-	$(CXX) -Illama.cpp -Illama.cpp/common $(CXXFLAGS) -o $@ $(LDFLAGS) -Wno-cast-qual $(HTTP_ZLIB_SUPPORT) $(filter-out %.h,$^)
+	$(CXX) -Illama.cpp -Illama.cpp/common $(CXXFLAGS) -o $@ $(filter-out %.h,$^) $(LDFLAGS) $(LIBS) -Wno-cast-qual $(HTTP_ZLIB_SUPPORT)
 
 .PHONY: llama-base
 llama-base:
