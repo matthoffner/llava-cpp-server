@@ -84,9 +84,20 @@ bin/ggml-metal.metal: ;
 endif # LLAMA_METAL
 
 #
+# If LLAMA_CUBLAS or another related flag is set, copy the CUDA resources
+#
+ifdef LLAMA_CUBLAS
+bin/ggml-cuda.cu: llama.cpp/ggml-cuda.cu
+	cp $< $@
+else
+bin/ggml-cuda: ;
+endif # LLAMA_CUBLAS
+
+
+#
 # Build all
 #
-build-all:  obj bin llama-base bin/ggml-metal.metal bin/llava-server
+build-all:  obj bin llama-base bin/ggml-metal.metal bin/ggml-cuda.cu bin/llava-server
 	@echo $(LLAMA_OBJS)
 
 #
